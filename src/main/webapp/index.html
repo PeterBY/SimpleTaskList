@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Task list</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-resource.js"></script>
+
+    <script src="app/app.js"></script>
+
+    <script src="app/xeditable.min.js"></script>
+    <link rel="stylesheet" href="app/xeditable.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body ng-app="app">
+
+<div class="text-center"><h2>Task list</h2></div>
+
+<div ng-controller="TaskListController as taskList">
+
+    <div class="container">
+        <div class="btn-group btn-group-justified">
+            <a ng-click="taskList.setFilter('all')" href=""
+               class="btn btn-{{taskList.getFilter() == 'all' && 'info' || 'default'}}">All</a>
+            <a ng-click="taskList.setFilter('active')" href=""
+               class="btn btn-{{taskList.getFilter() == 'active' && 'info' || 'default'}}">Active</a>
+            <a ng-click="taskList.setFilter('done')" href=""
+               class="btn btn-{{taskList.getFilter() == 'done' && 'info' || 'default'}}">Done</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <table class="table table-bordered table-hover table-condensed">
+            <tr style="font-weight: bold">
+                <td style="width:80%">Task</td>
+                <td style="width:10%">Status</td>
+                <td style="width:10%">Edit</td>
+            </tr>
+            <tr ng-repeat="task in taskList.tasks track by $index">
+                <td>
+                    <span editable-text="task.title" e-name="title" e-form="rowform">
+                        {{ task.title || 'empty' }}
+                    </span>
+                </td>
+                <td>
+                <span editable-checkbox="task.status" e-name="status" e-title="done" e-form="rowform">
+                    {{ task.status && "Done!" || "Active" }}
+                </span>
+                </td>
+                <td style="white-space: nowrap">
+                    <form editable-form name="rowform" onbeforesave="taskList.saveTask(task, rowform.$data)"
+                          ng-show="rowform.$visible" class="form-buttons form-inline">
+                        <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
+                            save
+                        </button>
+                        <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()"
+                                class="btn btn-default">
+                            cancel
+                        </button>
+                    </form>
+                    <div class="buttons" ng-show="!rowform.$visible">
+                        <button type="button" class="btn btn-primary" ng-click="rowform.$show()">
+                            edit
+                        </button>
+                        <button type="button" class="btn btn-danger" ng-click="taskList.delete(task, $index)">
+                            del
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <form ng-submit="taskList.addTask()">
+                        <input type="text" ng-model="taskList.taskTitle" size="100%" placeholder="add new task here">
+                        <input class="btn btn-success" type="submit" value="add new task">
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="text-align: center" class="container">
+        <ul class="pagination pagination-lg">
+            <li><a ng-click="taskList.firstPage()" href=""><<</a></li>
+            <li><a ng-click="taskList.prevPage()" href=""><</a></li>
+
+            <li ng-repeat="page in taskList.pageList track by $index" class="{{taskList.active($index)}}">
+                <a ng-click="taskList.loadPage($index)" href="">{{page.id}}</a>
+            </li>
+
+            <li><a ng-click="taskList.nextPage()" href="">></a></li>
+            <li><a ng-click="taskList.lastPage()" href="">>></a></li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
